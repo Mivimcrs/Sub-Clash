@@ -1,0 +1,375 @@
+mode: rule
+log-level: info
+find-process-mode: strict
+global-client-fingerprint: random
+mixed-port: 7890
+allow-lan: true
+geodata-mode: true
+unified-delay: true
+ipv6: true
+tcp-concurrent: true
+keep-alive-interval: 1800
+geo-auto-update: true
+geo-update-interval: 24
+
+external-controller: 127.0.0.1:9090
+external-ui: yacd
+bind-address: "*"
+
+# 缓存
+profile:
+  store-selected: true
+  store-fake-ip: true
+
+# 自动同步时间以防止时间不准导致无法正常联网
+ntp:
+  enable: true
+  write-to-system: false
+  server: time.apple.com
+  port: 123
+  interval: 30
+
+geox-url:
+  geoip: "https://jsd.onmicrosoft.cn/gh/Loyalsoldier/geoip@release/geoip.dat"
+  geosite: "https://jsd.onmicrosoft.cn/gh/Loyalsoldier/v2ray-rules-dat@release/geosite.dat"
+  mmdb: "https://jsd.onmicrosoft.cn/gh/Loyalsoldier/geoip@release/Country.mmdb"
+
+sniffer:
+  enable: true
+  sniff:
+    HTTP:
+      ports: [80, 8080-8880]
+      override-destination: true
+    TLS:
+      ports: [443, 8443]
+    QUIC:
+      ports: [443, 8443]
+  skip-domain:
+    - Mijia Cloud
+
+tun:
+  enable: true
+  device: Meta
+  stack: mixed
+  mtu: 1280
+  dns-hijack:
+    - "any:53"
+    - "tcp://any:53"
+  auto-route: true
+  auto-detect-interface: true
+
+dns:
+  enable: true
+  ipv6: true
+  listen: 0.0.0.0:1053
+  enhanced-mode: redir-host
+  fake-ip-range: 198.18.0.1/16
+  fake-ip-filter:
+    - '*'
+    - localhost.ptlogin2.qq.com
+    - dns.msftncsi.com
+    - www.msftncsi.com
+    - www.msftconnecttest.com
+    - time1.cloud.tencent.com
+    - '+.lan'
+    - '+.invalid.*'
+    - '+.localhost'
+    - '+.local.*'
+    - '+.time.*'
+    - '+.ntp.*'
+    - '+.time.edu.cn'
+    - '+.ntp.org.cn'
+    - '+.pool.ntp.org'
+    - '+.qpic.cn'
+  default-nameserver:
+    - 223.5.5.5
+    - 119.29.29.29
+    - 114.114.114.114
+    - '[2402:4e00::]'
+    - '[2400:3200::1]'
+  nameserver:
+    - 'tls://8.8.4.4#dns'
+    - 'tls://1.0.0.1#dns'
+    - 'tls://[2001:4860:4860::8844]#dns'
+    - 'tls://[2606:4700:4700::1001]#dns'
+  proxy-server-nameserver:
+    - https://doh.pub/dns-query
+  nameserver-policy:
+    "geosite:cn,private":
+      - https://doh.pub/dns-query
+      - https://dns.alidns.com/dns-query
+
+proxies: []
+
+p:
+  &p {
+    type: http,
+    interval: 3600,
+    health-check:
+      {
+        enable: true,
+        url: https://www.bing.com,
+        interval: 300,
+      },
+  }
+
+proxy-providers:
+  Yushe:
+    <<: *p
+    path: /data/clash/proxies/Yushe.yaml
+    url: "https://c752ace09b2e6839.cdn.jiashule.com/api/v1/client/subscribe?token=bca574c6eb51db98e9dc213a04911a19"
+
+  Unicorn:
+    <<: *p
+    path: /data/clash/proxies/Unicorn.yaml
+    url: "https://mail1.9wan.win/api/v1/client/subscribe?token=bda5c5a5530649cfc227c64bd6cb2ed3"
+
+kankan:
+  &kankan {
+    type: select,
+    use:
+    - Yushe
+    - Unicorn
+  }
+
+rule-anchor:
+  ip: &ip {type: http, interval: 600, behavior: ipcidr, format: yaml}
+  domain: &domain {type: http, interval: 600, behavior: domain, format: yaml}
+  classical: &classical {type: http, interval: 600, behavior: classical, format: yaml}
+  file: &file {type: file, interval: 600, behavior: classical, format: yaml}
+
+rule-providers:
+  BAN:
+    <<: *file
+    path: /data/clash/rulesets/0-BAN.yaml
+  PASS:
+    <<: *file
+    path: /data/clash/rulesets/0-PASS.yaml
+  Download:
+    <<: *classical
+    path: /data/clash/rulesets/Download.yaml
+    url: "https://cdn.jsdelivr.net/gh/blackmatrix7/ios_rule_script@master/rule/Clash/Download/Download.yaml"
+  PT:
+    <<: *classical
+    path: /data/clash/rulesets/PT.yaml
+    url: "https://cdn.jsdelivr.net/gh/blackmatrix7/ios_rule_script@master/rule/Clash/PrivateTracker/PrivateTracker.yaml"
+  Emby:
+    <<: *classical
+    path: /data/clash/rulesets/Emby.yaml
+    url: "https://cdn.jsdelivr.net/gh/blackmatrix7/ios_rule_script@master/rule/Clash/Emby/Emby.yaml"
+  YouTube:
+    <<: *classical
+    path: /data/clash/rulesets/YouTube.yaml
+    url: "https://cdn.jsdelivr.net/gh/blackmatrix7/ios_rule_script@master/rule/Clash/YouTube/YouTube.yaml"
+  Telegram:
+    <<: *classical
+    path: /data/clash/rulesets/Telegram.yaml
+    url: "https://cdn.jsdelivr.net/gh/blackmatrix7/ios_rule_script@master/rule/Clash/Telegram/Telegram.yaml"
+  Steam:
+    <<: *classical
+    path: /data/clash/rulesets/Steam.yaml
+    url: "https://cdn.jsdelivr.net/gh/blackmatrix7/ios_rule_script@master/rule/Clash/Steam/Steam.yaml"
+  Spotify:
+    <<: *classical
+    path: /data/clash/rulesets/Spotify.yaml
+    url: "https://cdn.jsdelivr.net/gh/blackmatrix7/ios_rule_script@master/rule/Clash/Spotify/Spotify.yaml"
+  Epic:
+    <<: *classical
+    path: /data/clash/rulesets/Epic.yaml
+    url: "https://cdn.jsdelivr.net/gh/blackmatrix7/ios_rule_script@master/rule/Clash/Epic/Epic.yaml"
+  EA:
+    <<: *classical
+    path: /data/clash/rulesets/EA.yaml
+    url: "https://cdn.jsdelivr.net/gh/blackmatrix7/ios_rule_script@master/rule/Clash/EA/EA.yaml"
+  GOG:
+    <<: *classical
+    path: /data/clash/rulesets/GOG.yaml
+    url: "https://cdn.jsdelivr.net/gh/blackmatrix7/ios_rule_script@master/rule/Clash/Gog/Gog.yaml"
+  Discord:
+    <<: *classical
+    path: /data/clash/rulesets/Discord.yaml
+    url: "https://cdn.jsdelivr.net/gh/blackmatrix7/ios_rule_script@master/rule/Clash/Discord/Discord.yaml"
+  Claude:
+    <<: *classical
+    path: /data/clash/rulesets/Claude.yaml
+    url: "https://cdn.jsdelivr.net/gh/blackmatrix7/ios_rule_script@master/rule/Clash/Claude/Claude.yaml"
+  OpenAI:
+    <<: *classical
+    path: /data/clash/rulesets/OpenAI.yaml
+    url: "https://cdn.jsdelivr.net/gh/blackmatrix7/ios_rule_script@master/rule/Clash/OpenAI/OpenAI.yaml"
+  BardAI:
+    <<: *classical
+    path: /data/clash/rulesets/BardAI.yaml
+    url: "https://cdn.jsdelivr.net/gh/blackmatrix7/ios_rule_script@master/rule/Clash/BardAI/BardAI.yaml"
+  Bing:
+    <<: *classical
+    path: /data/clash/rulesets/Bing.yaml
+    url: "https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Bing/Bing.yaml"
+  AICHAT-Patch:
+    <<: *file
+    path: /data/clash/rulesets/AIchat-Patch.yaml
+  Dcard:
+    <<: *file
+    path: /data/clash/rulesets/Dcard.yaml
+  Binance:
+    <<: *classical
+    path: /data/clash/rulesets/Binance.yaml
+    url: "https://cdn.jsdelivr.net/gh/blackmatrix7/ios_rule_script@master/rule/Clash/Binance/Binance.yaml"
+  Google:
+    <<: *classical
+    path: /data/clash/rulesets/Google.yaml
+    url: "https://cdn.jsdelivr.net/gh/blackmatrix7/ios_rule_script@master/rule/Clash/Google/Google.yaml"
+  Microsoft:
+    <<: *classical
+    path: /data/clash/rulesets/Microsoft.yaml
+    url: "https://cdn.jsdelivr.net/gh/blackmatrix7/ios_rule_script@master/rule/Clash/Microsoft/Microsoft.yaml"
+  Github:
+    <<: *classical
+    path: /data/clash/rulesets/Github.yaml
+    url: "https://cdn.jsdelivr.net/gh/blackmatrix7/ios_rule_script@master/rule/Clash/GitHub/GitHub.yaml"
+  Cloudflare:
+    <<: *classical
+    path: /data/clash/rulesets/Cloudflare.yaml
+    url: "https://cdn.jsdelivr.net/gh/blackmatrix7/ios_rule_script@master/rule/Clash/Cloudflare/Cloudflare.yaml"
+  PROXY:
+    <<: *file
+    path: /data/clash/rulesets/0-PROXY.yaml
+  ChinaMax:
+    <<: *classical
+    path: /data/clash/rulesets/ChinaMedia.yaml
+    url: "https://cdn.jsdelivr.net/gh/blackmatrix7/ios_rule_script@master/rule/Clash/ChinaMax/ChinaMax_Classical_No_IPv6.yaml"
+  anti-AD:
+    <<: *domain
+    path: /data/clash/rulesets/anti-AD.yaml
+    url: "https://raw.githubusercontent.com/privacy-protection-tools/anti-AD/master/anti-ad-clash.yaml"
+  anti-AD-white:
+    <<: *domain
+    path: /data/clash/rulesets/anti-AD-white.yaml
+    url: "https://raw.githubusercontent.com/privacy-protection-tools/dead-horse/master/anti-ad-white-for-clash.yaml"
+
+pr:
+  &pr {
+    type: select,
+    proxies:
+      [
+        🕹️,
+        🇭🇰,
+        🇹🇼,
+        🇯🇵,
+        🇸🇬,
+        🇺🇸,
+        🌏,
+        👀,
+        🇨🇳,
+      ],
+  }
+
+proxy-groups:
+  - name: 🕹️
+    type: select
+    filter: ""
+    proxies:
+      - 🇯🇵
+      - 🇸🇬
+      - 🇹🇼
+      - 🇭🇰
+      - 🇺🇸
+      - 👀
+
+  - name: EMBY
+    type: select
+    filter: ""
+    use:
+      - Yushe
+    proxies:
+      - DIRECT
+
+  - { name: GAME, <<: *pr }
+  - { name: SPOTIFY, <<: *pr }
+  - { name: APPLE, <<: *pr }
+  - { name: GOOGLE, <<: *pr }
+  - { name: MICROSOFT, <<: *pr }
+  - { name: AI CHAT, filter: "(?i)美|us|unitedstates|united states", <<: *pr}
+  - { name: DCARD, filter: "(?i)台|tw|taiwan", <<: *pr}
+  - { name: FINANCIAL, filter: "(?i)(新|狮|sg|singapore)", <<: *pr }
+  - { name: 🇨🇳, type: select, proxies: [DIRECT, 🕹️] }
+
+  - { name: 🇭🇰, type: select , <<: *kankan, filter: "(?i)港|hk|hongkong|hong kong" }
+  - { name: 🇹🇼, type: select , <<: *kankan, filter: "(?i)台|tw|taiwan" }
+  - { name: 🇯🇵, type: select , <<: *kankan, filter: "(?i)日本|jp|japan" }
+  - { name: 🇸🇬, type: select , <<: *kankan, filter: "(?i)(新|狮|sg|singapore)" }
+  - { name: 🇺🇸, type: select , <<: *kankan, filter: "(?i)美|us|unitedstates|united states" }
+  - { name: 🌏, type: select , <<: *kankan, filter: "(?i)^(?!.*(?:🇭🇰|🇯🇵|🇺🇸|🇸🇬|🇨🇳|港|hk|hongkong|台|tw|taiwan|日|jp|japan|新|sg|singapore|美|us|unitedstates)).*" }
+
+  - { name: 👀, type: select, <<: *kankan }
+  - { name: 👆, <<: *pr }
+  - { name: dns, <<: *pr }
+  - { name: 🈲🌐, type: select, proxies: [REJECT, DIRECT, 🕹️] }
+
+rules:
+  - RULE-SET,BAN,🈲🌐
+  - RULE-SET,Download,🇨🇳
+  - RULE-SET,PT,🇨🇳
+  - RULE-SET,PASS,🇨🇳
+  - RULE-SET,Epic,GAME
+  - RULE-SET,EA,GAME
+  - RULE-SET,GOG,GAME
+  - RULE-SET,Discord,GAME
+  - RULE-SET,Dcard,DCARD
+  - RULE-SET,Binance,FINANCIAL
+  - RULE-SET,PROXY,🕹️
+
+# AI CHAT
+  - DOMAIN-SUFFIX,chatgpt.com,AI CHAT
+  - DOMAIN-SUFFIX,oaistatic.com,AI CHAT
+  - DOMAIN-SUFFIX,oaiusercontent.com,AI CHAT
+  - DOMAIN-SUFFIX,openai.com,AI CHAT
+  - DOMAIN-SUFFIX,openai.com.cdn.cloudflare.net,AI CHAT
+  - DOMAIN-SUFFIX,openaiapi-site.azureedge.net,AI CHAT
+  - DOMAIN-SUFFIX,openaicom-api-bdcpf8c6d2e9atf6.z01.azurefd.net,AI CHAT
+  - DOMAIN-SUFFIX,openaicomproductionae4b.blob.core.windows.net,AI CHAT
+  - DOMAIN-SUFFIX,production-openaicom-storage.azureedge.net,AI CHAT
+  - DOMAIN-SUFFIX,chatgpt.com,AI CHAT
+  # OpenAI 跟踪域名
+  - DOMAIN-SUFFIX,o33249.ingest.sentry.io,🈲🌐
+  - DOMAIN-SUFFIX,openaicom.imgix.net,🈲🌐
+  # Aichat 补充规则
+  - RULE-SET,Claude,AI CHAT
+  - RULE-SET,OpenAI,AI CHAT
+  - RULE-SET,BardAI,AI CHAT
+  - RULE-SET,Bing,AI CHAT
+  - RULE-SET,AICHAT-Patch,AI CHAT
+
+  #Spotify
+  - GEOSITE,spotify,SPOTIFY
+
+  # Apple
+  - GEOSITE,apple,APPLE
+  - GEOSITE,apple-cn,APPLE
+
+  # Google
+  - GEOSITE,youtube,GOOGLE
+  - GEOSITE,google,GOOGLE
+  - GEOSITE,google-cn,GOOGLE
+
+  # Microsoft
+  - GEOSITE,onedrive,MICROSOFT
+  - GEOSITE,microsoft,MICROSOFT
+
+  - GEOSITE,ehentai,🕹️
+  - GEOSITE,github,🕹️
+  - GEOSITE,twitter,🕹️
+  - GEOSITE,telegram,🕹️
+  - GEOSITE,pixiv,🕹️
+  - GEOSITE,steam@cn,DIRECT
+  - GEOSITE,steam,GAME
+
+  - GEOSITE,geolocation-!cn,👆
+# - AND,(AND,(DST-PORT,443),(NETWORK,UDP)),(NOT,((GEOIP,CN))),REJECT # quic
+  - GEOIP,google,GOOGLE
+  - GEOIP,telegram,🕹️
+  - GEOIP,twitter,🕹️
+  - RULE-SET,ChinaMax,🇨🇳
+  - GEOSITE,CN,🇨🇳
+  - GEOIP,CN,🇨🇳
+  - MATCH,👆
