@@ -1,0 +1,11 @@
+payload:
+  - DOMAIN-SUFFIX,adobe.io
+  - DOMAIN-SUFFIX,adobe.io,REJECT
+  - DOMAIN-SUFFIX,*.adobe.io,REJECT
+  - DOMAIN-SUFFIX,photo-api.adobe.io,DIREC
+  - DOMAIN,ic.adobe.io
+  - DOMAIN,cc-api-data.adobe.io
+  - DOMAIN,7m31guub0q.adobe.io
+  - DOMAIN,4vzokhpsbs.adobe.io
+  - DOMAIN-SUFFIX,expire.eset.com
+  - DOMAIN-SUFFIX,edf.eset.com

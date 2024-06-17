@@ -1,0 +1,8 @@
+payload:
+  - DOMAIN-SUFFIX,imagine.meta.com
+  - DOMAIN-SUFFIX,copilot.microsoft.com
+  - DOMAIN-KEYWORD,copilot
+  - DOMAIN-SUFFIX,bingapis.com
+  - DOMAIN-KEYWORD,gemini
+  - DOMAIN-SUFFIX,gemini.google.com
+  - DOMAIN-SUFFIX,meta.ai

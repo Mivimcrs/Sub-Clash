@@ -1,0 +1,12 @@
+payload:
+  - DOMAIN-SUFFIX,adobe.com
+  - DOMAIN-SUFFIX,umeng.com
+  - DOMAIN-KEYWORD,jinyingjie
+  - DOMAIN-KEYWORD,dida365
+  - DOMAIN,badjs.weixinbridge.com
+  - DOMAIN-KEYWORD,wenku8
+  - DOMAIN-SUFFIX,googleapis.cn
+  - DOMAIN-SUFFIX,googleapis.com
+  - DOMAIN-SUFFIX,xn--ngstr-lra8j.com
+  - DOMAIN-SUFFIX,xn--ngstr-cn-8za9o.com
+
