@@ -1,45 +1,29 @@
-mode: rule
-log-level: info
-find-process-mode: strict
-global-client-fingerprint: random
-mixed-port: 7890
+http-port: 7890
+socks-port: 7891
+redir-port: 7892
+tproxy-port: 7893
 allow-lan: true
 geodata-mode: true
 unified-delay: true
+mode: rule
+log-level: info
 ipv6: true
 tcp-concurrent: true
-keep-alive-interval: 1800
+keep-alive-interval: 30
 geo-auto-update: true
 geo-update-interval: 24
-
-external-controller: 127.0.0.1:9090
-external-ui: yacd
-bind-address: "*"
-
-# 缓存
-profile:
-  store-selected: true
-  store-fake-ip: true
-
-# 自动同步时间以防止时间不准导致无法正常联网
-ntp:
-  enable: true
-  write-to-system: false
-  server: time.apple.com
-  port: 123
-  interval: 30
-
 geox-url:
   geoip: "https://jsd.onmicrosoft.cn/gh/Loyalsoldier/geoip@release/geoip.dat"
   geosite: "https://jsd.onmicrosoft.cn/gh/Loyalsoldier/v2ray-rules-dat@release/geosite.dat"
   mmdb: "https://jsd.onmicrosoft.cn/gh/Loyalsoldier/geoip@release/Country.mmdb"
+find-process-mode: strict
+global-client-fingerprint: chrome
 
 sniffer:
   enable: true
   sniff:
     HTTP:
       ports: [80, 8080-8880]
-      override-destination: true
     TLS:
       ports: [443, 8443]
     QUIC:
@@ -47,59 +31,61 @@ sniffer:
   skip-domain:
     - Mijia Cloud
 
+
+profile:
+  store-fake-ip: true
+  store-selected: true
+
+external-controller: 127.0.0.1:9090
+external-ui: yacd
+bind-address: "*"
+
 tun:
   enable: true
   device: Meta
   stack: mixed
   mtu: 1280
   dns-hijack:
-    - "any:53"
-    - "tcp://any:53"
+    - any:53
   auto-route: true
-  auto-detect-interface: true
 
 dns:
   enable: true
-  ipv6: true
+  cache-algorithm: arc
+  prefer-h3: false
+  use-hosts: false
+  use-system-hosts: true
+  respect-rules: true
   listen: 0.0.0.0:1053
-  enhanced-mode: redir-host
+  ipv6: true
+  ipv6-timeout: 1000
+  default-nameserver:
+    - "https://223.5.5.5/dns-query"
+  enhanced-mode: fake-ip
   fake-ip-range: 198.18.0.1/16
   fake-ip-filter:
-    - '*'
-    - localhost.ptlogin2.qq.com
-    - dns.msftncsi.com
-    - www.msftncsi.com
-    - www.msftconnecttest.com
-    - time1.cloud.tencent.com
     - '+.lan'
-    - '+.invalid.*'
-    - '+.localhost'
-    - '+.local.*'
-    - '+.time.*'
-    - '+.ntp.*'
-    - '+.time.edu.cn'
-    - '+.ntp.org.cn'
-    - '+.pool.ntp.org'
-    - '+.qpic.cn'
-  default-nameserver:
-    - 223.5.5.5
-    - 119.29.29.29
-    - 114.114.114.114
-    - '[2402:4e00::]'
-    - '[2400:3200::1]'
-  nameserver:
-    - 'tls://8.8.4.4#dns'
-    - 'tls://1.0.0.1#dns'
-    - 'tls://[2001:4860:4860::8844]#dns'
-    - 'tls://[2606:4700:4700::1001]#dns'
-  proxy-server-nameserver:
-    - https://doh.pub/dns-query
+    - '+.local'
+    - '*.example.com'
   nameserver-policy:
     "geosite:cn,private":
-      - https://doh.pub/dns-query
-      - https://dns.alidns.com/dns-query
+      - "https://1.12.12.12/dns-query"
+      - "https://[2402:4e00::]/dns-query"
+      - "https://223.5.5.5/dns-query"
+      - "https://[2400:3200::1]/dns-query"
+  nameserver:
+    - "https://1.1.1.1/dns-query"
+    - "https://[2606:4700:4700::1111]/dns-query"
+    - "https://8.8.8.8/dns-query"
+    - "https://[2001:4860:4860::8888]/dns-query"
+    - "https://94.140.14.14/dns-query"
+    - "https://[2a10:50c0::ad1:ff]/dns-query"
+  proxy-server-nameserver:
+    - "https://223.5.5.5/dns-query"
 
-proxies: []
+
+
+proxies:
 
 p:
   &p {
@@ -113,24 +99,22 @@ p:
       },
   }
 
+use: &use
+  type: select
+  use:
+    - Yushe
+    - Unicorn
+
 proxy-providers:
   Yushe:
     <<: *p
-    path: /data/clash/proxies/Yushe.yaml
-    url: "https://c752ace09b2e6839.cdn.jiashule.com/api/v1/client/subscribe?token=bca574c6eb51db98e9dc213a04911a19"
+    path:
+    url: "https://sub.cucloud.top/api/v1/client/subscribe?token=bca574c6eb51db98e9dc213a04911a19"
 
   Unicorn:
     <<: *p
-    path: /data/clash/proxies/Unicorn.yaml
+    path:
     url: "https://mail1.9wan.win/api/v1/client/subscribe?token=bda5c5a5530649cfc227c64bd6cb2ed3"
-
-kankan:
-  &kankan {
-    type: select,
-    use:
-    - Yushe
-    - Unicorn
-  }
 
 rule-anchor:
   ip: &ip {type: http, interval: 600, behavior: ipcidr, format: yaml}
@@ -141,110 +125,110 @@ rule-anchor:
 rule-providers:
   BAN:
     <<: *file
-    path: /data/clash/rulesets/0-BAN.yaml
+    path: ./rulesets/0-BAN.yaml
   PASS:
     <<: *file
-    path: /data/clash/rulesets/0-PASS.yaml
+    path: ./rulesets/0-PASS.yaml
   Download:
     <<: *classical
-    path: /data/clash/rulesets/Download.yaml
+    path: ./rulesets/Download.yaml
     url: "https://cdn.jsdelivr.net/gh/blackmatrix7/ios_rule_script@master/rule/Clash/Download/Download.yaml"
   PT:
     <<: *classical
-    path: /data/clash/rulesets/PT.yaml
+    path: ./rulesets/PT.yaml
     url: "https://cdn.jsdelivr.net/gh/blackmatrix7/ios_rule_script@master/rule/Clash/PrivateTracker/PrivateTracker.yaml"
   Emby:
     <<: *classical
-    path: /data/clash/rulesets/Emby.yaml
+    path: ./rulesets/Emby.yaml
     url: "https://cdn.jsdelivr.net/gh/blackmatrix7/ios_rule_script@master/rule/Clash/Emby/Emby.yaml"
   YouTube:
     <<: *classical
-    path: /data/clash/rulesets/YouTube.yaml
+    path: ./rulesets/YouTube.yaml
     url: "https://cdn.jsdelivr.net/gh/blackmatrix7/ios_rule_script@master/rule/Clash/YouTube/YouTube.yaml"
   Telegram:
     <<: *classical
-    path: /data/clash/rulesets/Telegram.yaml
+    path: ./rulesets/Telegram.yaml
     url: "https://cdn.jsdelivr.net/gh/blackmatrix7/ios_rule_script@master/rule/Clash/Telegram/Telegram.yaml"
   Steam:
     <<: *classical
-    path: /data/clash/rulesets/Steam.yaml
+    path: ./rulesets/Steam.yaml
     url: "https://cdn.jsdelivr.net/gh/blackmatrix7/ios_rule_script@master/rule/Clash/Steam/Steam.yaml"
   Spotify:
     <<: *classical
-    path: /data/clash/rulesets/Spotify.yaml
+    path: ./rulesets/Spotify.yaml
     url: "https://cdn.jsdelivr.net/gh/blackmatrix7/ios_rule_script@master/rule/Clash/Spotify/Spotify.yaml"
   Epic:
     <<: *classical
-    path: /data/clash/rulesets/Epic.yaml
+    path: ./rulesets/Epic.yaml
     url: "https://cdn.jsdelivr.net/gh/blackmatrix7/ios_rule_script@master/rule/Clash/Epic/Epic.yaml"
   EA:
     <<: *classical
-    path: /data/clash/rulesets/EA.yaml
+    path: ./rulesets/EA.yaml
     url: "https://cdn.jsdelivr.net/gh/blackmatrix7/ios_rule_script@master/rule/Clash/EA/EA.yaml"
   GOG:
     <<: *classical
-    path: /data/clash/rulesets/GOG.yaml
+    path: ./rulesets/GOG.yaml
     url: "https://cdn.jsdelivr.net/gh/blackmatrix7/ios_rule_script@master/rule/Clash/Gog/Gog.yaml"
   Discord:
     <<: *classical
-    path: /data/clash/rulesets/Discord.yaml
+    path: ./rulesets/Discord.yaml
     url: "https://cdn.jsdelivr.net/gh/blackmatrix7/ios_rule_script@master/rule/Clash/Discord/Discord.yaml"
   Claude:
     <<: *classical
-    path: /data/clash/rulesets/Claude.yaml
+    path: ./rulesets/Claude.yaml
     url: "https://cdn.jsdelivr.net/gh/blackmatrix7/ios_rule_script@master/rule/Clash/Claude/Claude.yaml"
   OpenAI:
     <<: *classical
-    path: /data/clash/rulesets/OpenAI.yaml
+    path: ./rulesets/OpenAI.yaml
     url: "https://cdn.jsdelivr.net/gh/blackmatrix7/ios_rule_script@master/rule/Clash/OpenAI/OpenAI.yaml"
   BardAI:
     <<: *classical
-    path: /data/clash/rulesets/BardAI.yaml
+    path: ./rulesets/BardAI.yaml
     url: "https://cdn.jsdelivr.net/gh/blackmatrix7/ios_rule_script@master/rule/Clash/BardAI/BardAI.yaml"
   Bing:
     <<: *classical
-    path: /data/clash/rulesets/Bing.yaml
+    path: ./rulesets/Bing.yaml
     url: "https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Bing/Bing.yaml"
   AICHAT-Patch:
     <<: *file
-    path: /data/clash/rulesets/AIchat-Patch.yaml
+    path: ./rulesets/AIchat-Patch.yaml
   Dcard:
     <<: *file
-    path: /data/clash/rulesets/Dcard.yaml
+    path: ./rulesets/Dcard.yaml
   Binance:
     <<: *classical
-    path: /data/clash/rulesets/Binance.yaml
+    path: ./rulesets/Binance.yaml
     url: "https://cdn.jsdelivr.net/gh/blackmatrix7/ios_rule_script@master/rule/Clash/Binance/Binance.yaml"
   Google:
     <<: *classical
-    path: /data/clash/rulesets/Google.yaml
+    path: ./rulesets/Google.yaml
     url: "https://cdn.jsdelivr.net/gh/blackmatrix7/ios_rule_script@master/rule/Clash/Google/Google.yaml"
   Microsoft:
     <<: *classical
-    path: /data/clash/rulesets/Microsoft.yaml
+    path: ./rulesets/Microsoft.yaml
     url: "https://cdn.jsdelivr.net/gh/blackmatrix7/ios_rule_script@master/rule/Clash/Microsoft/Microsoft.yaml"
   Github:
     <<: *classical
-    path: /data/clash/rulesets/Github.yaml
+    path: ./rulesets/Github.yaml
     url: "https://cdn.jsdelivr.net/gh/blackmatrix7/ios_rule_script@master/rule/Clash/GitHub/GitHub.yaml"
   Cloudflare:
     <<: *classical
-    path: /data/clash/rulesets/Cloudflare.yaml
+    path: ./rulesets/Cloudflare.yaml
     url: "https://cdn.jsdelivr.net/gh/blackmatrix7/ios_rule_script@master/rule/Clash/Cloudflare/Cloudflare.yaml"
   PROXY:
     <<: *file
-    path: /data/clash/rulesets/0-PROXY.yaml
+    path: ./rulesets/0-PROXY.yaml
   ChinaMax:
     <<: *classical
-    path: /data/clash/rulesets/ChinaMedia.yaml
+    path: ./rulesets/ChinaMedia.yaml
     url: "https://cdn.jsdelivr.net/gh/blackmatrix7/ios_rule_script@master/rule/Clash/ChinaMax/ChinaMax_Classical_No_IPv6.yaml"
   anti-AD:
     <<: *domain
-    path: /data/clash/rulesets/anti-AD.yaml
+    path: ./rulesets/anti-AD.yaml
     url: "https://raw.githubusercontent.com/privacy-protection-tools/anti-AD/master/anti-ad-clash.yaml"
   anti-AD-white:
     <<: *domain
-    path: /data/clash/rulesets/anti-AD-white.yaml
+    path: ./rulesets/anti-AD-white.yaml
     url: "https://raw.githubusercontent.com/privacy-protection-tools/dead-horse/master/anti-ad-white-for-clash.yaml"
 
 pr:
@@ -294,14 +278,14 @@ proxy-groups:
   - { name: FINANCIAL, filter: "(?i)(新|狮|sg|singapore)", <<: *pr }
   - { name: 🇨🇳, type: select, proxies: [DIRECT, 🕹️] }
 
-  - { name: 🇭🇰, type: select , <<: *kankan, filter: "(?i)港|hk|hongkong|hong kong" }
-  - { name: 🇹🇼, type: select , <<: *kankan, filter: "(?i)台|tw|taiwan" }
-  - { name: 🇯🇵, type: select , <<: *kankan, filter: "(?i)日本|jp|japan" }
-  - { name: 🇸🇬, type: select , <<: *kankan, filter: "(?i)(新|狮|sg|singapore)" }
-  - { name: 🇺🇸, type: select , <<: *kankan, filter: "(?i)美|us|unitedstates|united states" }
-  - { name: 🌏, type: select , <<: *kankan, filter: "(?i)^(?!.*(?:🇭🇰|🇯🇵|🇺🇸|🇸🇬|🇨🇳|港|hk|hongkong|台|tw|taiwan|日|jp|japan|新|sg|singapore|美|us|unitedstates)).*" }
+  - { name: 🇭🇰, type: select , <<: *use, filter: "(?i)港|hk|hongkong|hong kong" }
+  - { name: 🇹🇼, type: select , <<: *use, filter: "(?i)台|tw|taiwan" }
+  - { name: 🇯🇵, type: select , <<: *use, filter: "(?i)日本|jp|japan" }
+  - { name: 🇸🇬, type: select , <<: *use, filter: "(?i)(新|狮|sg|singapore)" }
+  - { name: 🇺🇸, type: select , <<: *use, filter: "(?i)美|us|unitedstates|united states" }
+  - { name: 🌏, type: select , <<: *use, filter: "(?i)^(?!.*(?:🇭🇰|🇯🇵|🇺🇸|🇸🇬|🇨🇳|港|hk|hongkong|台|tw|taiwan|日|jp|japan|新|sg|singapore|美|us|unitedstates)).*" }
 
-  - { name: 👀, type: select, <<: *kankan }
+  - { name: 👀, type: select, <<: *use }
   - { name: 👆, <<: *pr }
   - { name: dns, <<: *pr }
   - { name: 🈲🌐, type: select, proxies: [REJECT, DIRECT, 🕹️] }
