@@ -124,11 +124,13 @@ rule-anchor:
 
 rule-providers:
   BAN:
-    <<: *file
-    path: ./rulesets/0-BAN.yaml
+    <<: *classical
+    path: ./rulesets/BAN.yaml
+    url: "https://raw.githubusercontent.com/Mivimcrs/Sub-Clash/main/Clash%20config/rulesets/BAN.yaml"
   PASS:
-    <<: *file
-    path: ./rulesets/0-PASS.yaml
+    <<: *classical
+    path: ./rulesets/PASS.yaml
+    url: "https://raw.githubusercontent.com/Mivimcrs/Sub-Clash/main/Clash%20config/rulesets/PASS.yaml"
   Download:
     <<: *classical
     path: ./rulesets/Download.yaml
@@ -190,11 +192,13 @@ rule-providers:
     path: ./rulesets/Bing.yaml
     url: "https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Bing/Bing.yaml"
   AICHAT-Patch:
-    <<: *file
+    <<: *classical
     path: ./rulesets/AIchat-Patch.yaml
+    url: "https://raw.githubusercontent.com/Mivimcrs/Sub-Clash/main/Clash%20config/rulesets/AIchat-Patch.yaml"
   Dcard:
-    <<: *file
+    <<: *classical
     path: ./rulesets/Dcard.yaml
+    url: "https://raw.githubusercontent.com/Mivimcrs/Sub-Clash/main/Clash%20config/rulesets/Dcard.yaml"
   Binance:
     <<: *classical
     path: ./rulesets/Binance.yaml
@@ -216,8 +220,9 @@ rule-providers:
     path: ./rulesets/Cloudflare.yaml
     url: "https://cdn.jsdelivr.net/gh/blackmatrix7/ios_rule_script@master/rule/Clash/Cloudflare/Cloudflare.yaml"
   PROXY:
-    <<: *file
-    path: ./rulesets/0-PROXY.yaml
+    <<: *classical
+    path: ./rulesets/PROXY.yaml
+    url: "https://raw.githubusercontent.com/Mivimcrs/Sub-Clash/main/Clash%20config/rulesets/PROXY.yaml"
   ChinaMax:
     <<: *classical
     path: ./rulesets/ChinaMedia.yaml
