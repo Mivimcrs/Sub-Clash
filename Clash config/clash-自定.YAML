@@ -7,7 +7,7 @@ geodata-mode: true
 unified-delay: true
 mode: rule
 log-level: info
-ipv6: true
+ipv6: false
 tcp-concurrent: true
 keep-alive-interval: 30
 geo-auto-update: true
@@ -20,7 +20,7 @@ find-process-mode: strict
 global-client-fingerprint: chrome
 
 sniffer:
-  enable: true
+  enable: false
   sniff:
     HTTP:
       ports: [80, 8080-8880]
@@ -30,7 +30,6 @@ sniffer:
       ports: [443, 8443]
   skip-domain:
     - Mijia Cloud
-
 
 profile:
   store-fake-ip: true
@@ -48,42 +47,49 @@ tun:
   dns-hijack:
     - any:53
   auto-route: true
+  # 下方是不走代理的应用，用在手机上
+  exclude-package:
+    - cmb.pb
+    - com.alibaba.android.rimet
+    - com.baidu.carlife.xiaomi
+    - com.milink.service
+    - com.miui.audiomonitor
+    - com.miui.systemAdSolution
+    - com.miui.voiceassist
+    - com.panasonic.jp.lumixsync
+    - com.unionpay
+    - com.xiaomi.aiasst.service
+    - com.xiaomi.market
+    - com.xiaomi.mi_connect_service
+    - com.xiaomi.mirror
+    - com.xiaomi.mis
+    - com.xiaomi.xmsf
+    - net.easyconn.carman.neutral
 
 dns:
   enable: true
-  cache-algorithm: arc
-  prefer-h3: false
-  use-hosts: false
-  use-system-hosts: true
-  respect-rules: true
-  listen: 0.0.0.0:1053
-  ipv6: true
-  ipv6-timeout: 1000
-  default-nameserver:
-    - "https://223.5.5.5/dns-query"
+  listen: :53
+  ipv6: false
   enhanced-mode: fake-ip
-  fake-ip-range: 198.18.0.1/16
+  fake-ip-range: 198.18.0.0/15
   fake-ip-filter:
-    - '+.lan'
-    - '+.local'
-    - '*.example.com'
+    - "*"
+    - "+.lan"
+    - "+.local"
+  respect-rules: true
+  default-nameserver:
+    - tls://223.5.5.5:853
+    - tls://1.12.12.12:853
+  proxy-server-nameserver:
+    - https://223.5.5.5/dns-query
+    - https://1.12.12.12/dns-query
+  nameserver:
+    - https://dns.cloudflare.com/dns-query
+    - https://dns.google/dns-query
   nameserver-policy:
     "geosite:cn,private":
-      - "https://1.12.12.12/dns-query"
-      - "https://[2402:4e00::]/dns-query"
-      - "https://223.5.5.5/dns-query"
-      - "https://[2400:3200::1]/dns-query"
-  nameserver:
-    - "https://1.1.1.1/dns-query"
-    - "https://[2606:4700:4700::1111]/dns-query"
-    - "https://8.8.8.8/dns-query"
-    - "https://[2001:4860:4860::8888]/dns-query"
-    - "https://94.140.14.14/dns-query"
-    - "https://[2a10:50c0::ad1:ff]/dns-query"
-  proxy-server-nameserver:
-    - "https://223.5.5.5/dns-query"
-
-
+      - https://223.5.5.5/dns-query
+      - https://1.12.12.12/dns-query
 
 proxies:
 
@@ -91,12 +97,7 @@ p:
   &p {
     type: http,
     interval: 3600,
-    health-check:
-      {
-        enable: true,
-        url: https://www.bing.com,
-        interval: 300,
-      },
+    health-check: { enable: true, url: https://www.bing.com, interval: 300 },
   }
 
 use: &use
@@ -117,10 +118,11 @@ proxy-providers:
     url: "https://mail1.9wan.win/api/v1/client/subscribe?token=bda5c5a5530649cfc227c64bd6cb2ed3"
 
 rule-anchor:
-  ip: &ip {type: http, interval: 600, behavior: ipcidr, format: yaml}
-  domain: &domain {type: http, interval: 600, behavior: domain, format: yaml}
-  classical: &classical {type: http, interval: 600, behavior: classical, format: yaml}
-  file: &file {type: file, interval: 600, behavior: classical, format: yaml}
+  ip: &ip { type: http, interval: 600, behavior: ipcidr, format: yaml }
+  domain: &domain { type: http, interval: 600, behavior: domain, format: yaml }
+  classical:
+    &classical { type: http, interval: 600, behavior: classical, format: yaml }
+  file: &file { type: file, interval: 600, behavior: classical, format: yaml }
 
 rule-providers:
   BAN:
@@ -225,7 +227,7 @@ rule-providers:
     url: "https://raw.githubusercontent.com/Mivimcrs/Sub-Clash/main/Clash%20config/rulesets/PROXY.yaml"
   ChinaMax:
     <<: *classical
-    path: ./rulesets/ChinaMedia.yaml
+    path: ./rulesets/ChinaMax.yaml
     url: "https://cdn.jsdelivr.net/gh/blackmatrix7/ios_rule_script@master/rule/Clash/ChinaMax/ChinaMax_Classical_No_IPv6.yaml"
   anti-AD:
     <<: *domain
@@ -236,22 +238,7 @@ rule-providers:
     path: ./rulesets/anti-AD-white.yaml
     url: "https://raw.githubusercontent.com/privacy-protection-tools/dead-horse/master/anti-ad-white-for-clash.yaml"
 
-pr:
-  &pr {
-    type: select,
-    proxies:
-      [
-        🕹️,
-        🇭🇰,
-        🇹🇼,
-        🇯🇵,
-        🇸🇬,
-        🇺🇸,
-        🌏,
-        👀,
-        🇨🇳,
-      ],
-  }
+pr: &pr { type: select, proxies: [🕹️, 🇭🇰, 🇹🇼, 🇯🇵, 🇸🇬, 🇺🇸, 🌏, 👀, 🇨🇳] }
 
 proxy-groups:
   - name: 🕹️
@@ -278,21 +265,30 @@ proxy-groups:
   - { name: APPLE, <<: *pr }
   - { name: GOOGLE, <<: *pr }
   - { name: MICROSOFT, <<: *pr }
-  - { name: AI CHAT, filter: "(?i)美|us|unitedstates|united states", <<: *pr}
-  - { name: DCARD, filter: "(?i)台|tw|taiwan", <<: *pr}
+  - { name: AI CHAT, filter: "(?i)美|us|unitedstates|united states", <<: *pr }
+  - { name: DCARD, filter: "(?i)台|tw|taiwan", <<: *pr }
   - { name: FINANCIAL, filter: "(?i)(新|狮|sg|singapore)", <<: *pr }
   - { name: 🇨🇳, type: select, proxies: [DIRECT, 🕹️] }
 
-  - { name: 🇭🇰, type: select , <<: *use, filter: "(?i)港|hk|hongkong|hong kong" }
-  - { name: 🇹🇼, type: select , <<: *use, filter: "(?i)台|tw|taiwan" }
-  - { name: 🇯🇵, type: select , <<: *use, filter: "(?i)日本|jp|japan" }
-  - { name: 🇸🇬, type: select , <<: *use, filter: "(?i)(新|狮|sg|singapore)" }
-  - { name: 🇺🇸, type: select , <<: *use, filter: "(?i)美|us|unitedstates|united states" }
-  - { name: 🌏, type: select , <<: *use, filter: "(?i)^(?!.*(?:🇭🇰|🇯🇵|🇺🇸|🇸🇬|🇨🇳|港|hk|hongkong|台|tw|taiwan|日|jp|japan|新|sg|singapore|美|us|unitedstates)).*" }
+  - { name: 🇭🇰, type: select, <<: *use, filter: "(?i)港|hk|hongkong|hong kong" }
+  - { name: 🇹🇼, type: select, <<: *use, filter: "(?i)台|tw|taiwan" }
+  - { name: 🇯🇵, type: select, <<: *use, filter: "(?i)日本|jp|japan" }
+  - { name: 🇸🇬, type: select, <<: *use, filter: "(?i)(新|狮|sg|singapore)" }
+  - {
+      name: 🇺🇸,
+      type: select,
+      <<: *use,
+      filter: "(?i)美|us|unitedstates|united states",
+    }
+  - {
+      name: 🌏,
+      type: select,
+      <<: *use,
+      filter: "(?i)^(?!.*(?:🇭🇰|🇯🇵|🇺🇸|🇸🇬|🇨🇳|港|hk|hongkong|台|tw|taiwan|日|jp|japan|新|sg|singapore|美|us|unitedstates)).*",
+    }
 
   - { name: 👀, type: select, <<: *use }
   - { name: 👆, <<: *pr }
-  - { name: dns, <<: *pr }
   - { name: 🈲🌐, type: select, proxies: [REJECT, DIRECT, 🕹️] }
 
 rules:
@@ -300,15 +296,10 @@ rules:
   - RULE-SET,Download,🇨🇳
   - RULE-SET,PT,🇨🇳
   - RULE-SET,PASS,🇨🇳
-  - RULE-SET,Epic,GAME
-  - RULE-SET,EA,GAME
-  - RULE-SET,GOG,GAME
-  - RULE-SET,Discord,GAME
   - RULE-SET,Dcard,DCARD
   - RULE-SET,Binance,FINANCIAL
-  - RULE-SET,PROXY,🕹️
 
-# AI CHAT
+  # AI CHAT
   - DOMAIN-SUFFIX,chatgpt.com,AI CHAT
   - DOMAIN-SUFFIX,oaistatic.com,AI CHAT
   - DOMAIN-SUFFIX,oaiusercontent.com,AI CHAT
@@ -350,15 +341,31 @@ rules:
   - GEOSITE,twitter,🕹️
   - GEOSITE,telegram,🕹️
   - GEOSITE,pixiv,🕹️
-  - GEOSITE,steam@cn,DIRECT
-  - GEOSITE,steam,GAME
-
-  - GEOSITE,geolocation-!cn,👆
-# - AND,(AND,(DST-PORT,443),(NETWORK,UDP)),(NOT,((GEOIP,CN))),REJECT # quic
+  - RULE-SET,PROXY,🕹️
   - GEOIP,google,GOOGLE
   - GEOIP,telegram,🕹️
   - GEOIP,twitter,🕹️
-  - RULE-SET,ChinaMax,🇨🇳
+
+  # GAME
+  - GEOSITE,steam@cn,DIRECT
+  - GEOSITE,steam,GAME
+  - RULE-SET,Epic,GAME
+  - RULE-SET,EA,GAME
+  - RULE-SET,GOG,GAME
+  - RULE-SET,Discord,GAME
+
+  - GEOSITE,geolocation-!cn,👆
   - GEOSITE,CN,🇨🇳
+  - GEOSITE,private,🇨🇳
   - GEOIP,CN,🇨🇳
+
+  - DOMAIN-SUFFIX,cn,DIRECT
+  - DOMAIN-KEYWORD,geosite,🕹️
+  - IP-CIDR,10.0.0.0/8,DIRECT
+  - IP-CIDR,172.16.0.0/12,DIRECT
+  - IP-CIDR,192.168.0.0/16,DIRECT
+  - IP-CIDR,192.18.0.0/12,DIRECT
+  - IP-CIDR,127.0.0.0/8,DIRECT
+  - IP-CIDR,224.0.0.0/4,DIRECT
+  - IP-CIDR,240.0.0.0/4,DIRECT
   - MATCH,👆
