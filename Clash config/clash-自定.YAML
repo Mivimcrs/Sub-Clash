@@ -1,26 +1,79 @@
-http-port: 7890
-socks-port: 7891
-redir-port: 7892
-tproxy-port: 7893
+mixed-port: 7890
+tproxy-port: 7891
+
 allow-lan: true
-geodata-mode: true
-unified-delay: true
-mode: rule
-log-level: info
-ipv6: false
-tcp-concurrent: true
+mode: Rule
+log-level: error
+ipv6: true
+#控制 Clash 发出 TCP Keep Alive 包的间隔，减少移动设备耗电问题的临时措施
 keep-alive-interval: 30
-geo-auto-update: true
-geo-update-interval: 24
-geox-url:
-  geoip: "https://jsd.onmicrosoft.cn/gh/Loyalsoldier/geoip@release/geoip.dat"
-  geosite: "https://jsd.onmicrosoft.cn/gh/Loyalsoldier/v2ray-rules-dat@release/geosite.dat"
-  mmdb: "https://jsd.onmicrosoft.cn/gh/Loyalsoldier/geoip@release/Country.mmdb"
-find-process-mode: strict
+#控制是否让 Clash 去匹配进程
+#always 开启，强制匹配所有进程
+#strict 默认，由 Clash 判断是否开启
+#off 不匹配进程，推荐在路由器上使用此模式
+enable-process: true
+find-process-mode: always
+
+external-controller: 0.0.0.0:9090
+secret: ""
+#面板默认Meta 可选Yacd 清除浏览器缓存即可重新加载
+external-ui: ./metacubexd
+#本地UI下载地址，从 GitHub Pages 分支获取
+external-ui-url: "https://github.com/MetaCubeX/metacubexd/archive/refs/heads/gh-pages.zip"
+
+#缓存
+profile:
+  store-selected: true
+  store-fake-ip: true
+
+unified-delay: true
+tcp-concurrent: true
 global-client-fingerprint: chrome
 
+geodata-mode: true
+geodata-loader: standard
+geo-auto-update: true
+geo-update-interval: 24
+global-ua: clash.meta
+geox-url:
+  geoip: "https://testingcf.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@release/geoip.dat"
+  geosite: "https://testingcf.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@release/geosite.dat"
+  mmdb: "https://testingcf.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@release/country.mmdb"
+  asn: "https://github.com/xishang0128/geoip/releases/download/latest/GeoLite2-ASN.mmdb"
+
+dns:
+  enable: true
+  ipv6: false
+  prefer-h3: false
+  use-hosts: true
+  use-system-hosts: true
+  respect-rules: false
+  listen: 0.0.0.0:1053
+  #可选值 normal/fake-ip/redir-host
+  enhanced-mode: normal
+  fake-ip-range: 198.18.0.0/15
+  #fake-ip 排除列表
+  fake-ip-filter:
+    - "*"
+    - "+.lan"
+    - "connect.rom.miui.com"
+    - "localhost.ptlogin2.qq.com"
+  nameserver:
+    - tls://1.0.0.1
+    - tls://8.8.4.4
+  nameserver-policy:
+    "geosite:cn,private":
+      - https://1.12.12.12/dns-query
+      - https://223.5.5.5/dns-query
+    "geosite:geolocation-!cn":
+      - https://94.140.14.140/dns-query
+      - https://1.0.0.1/dns-query
+
 sniffer:
-  enable: false
+  enable: true
+  force-dns-mapping: true
+  parse-pure-ip: true
+  override-destination: true
   sniff:
     HTTP:
       ports: [80, 8080-8880]
@@ -28,70 +81,42 @@ sniffer:
       ports: [443, 8443]
     QUIC:
       ports: [443, 8443]
+  force-domain:
+    - "+.v2ex.com"
   skip-domain:
-    - Mijia Cloud
-
-profile:
-  store-fake-ip: true
-  store-selected: true
-
-external-controller: 127.0.0.1:9090
-external-ui: yacd
-bind-address: "*"
+    - "Mijia Cloud"
 
 tun:
   enable: true
-  device: Meta
+  #可用值： system/gvisor/mixed
   stack: mixed
-  mtu: 1280
-  dns-hijack:
-    - any:53
+  device: utun0
   auto-route: true
-  # 下方是不走代理的应用，用在手机上
+  #auto-redirect: true
+  auto-detect-interface: true
+  dns-hijack:
+    - "any:53"
+    - "tcp://any:53"
+  strict-route: true
+  mtu: 9000
+  route-exclude-address:
+    - 192.168.0.0/16
+    - fc00::/7
+  #include-package:
   exclude-package:
-    - cmb.pb
-    - com.alibaba.android.rimet
+    - android.media
+    - com.tencent.mm
     - com.baidu.carlife.xiaomi
     - com.milink.service
     - com.miui.audiomonitor
     - com.miui.systemAdSolution
     - com.miui.voiceassist
-    - com.panasonic.jp.lumixsync
-    - com.unionpay
     - com.xiaomi.aiasst.service
     - com.xiaomi.market
     - com.xiaomi.mi_connect_service
     - com.xiaomi.mirror
     - com.xiaomi.mis
     - com.xiaomi.xmsf
-    - net.easyconn.carman.neutral
-
-dns:
-  enable: true
-  listen: :53
-  ipv6: false
-  enhanced-mode: fake-ip
-  fake-ip-range: 198.18.0.0/15
-  fake-ip-filter:
-    - "*"
-    - "+.lan"
-    - "+.local"
-  respect-rules: true
-  default-nameserver:
-    - tls://223.5.5.5:853
-    - tls://1.12.12.12:853
-  proxy-server-nameserver:
-    - https://223.5.5.5/dns-query
-    - https://1.12.12.12/dns-query
-  nameserver:
-    - https://dns.cloudflare.com/dns-query
-    - https://dns.google/dns-query
-  nameserver-policy:
-    "geosite:cn,private":
-      - https://223.5.5.5/dns-query
-      - https://1.12.12.12/dns-query
-
-proxies:
 
 p:
   &p {
@@ -110,7 +135,7 @@ proxy-providers:
   Yushe:
     <<: *p
     path:
-    url: "https://sub.cucloud.top/api/v1/client/subscribe?token=bca574c6eb51db98e9dc213a04911a19"
+    url: "https://sub.cucloud.top/api/v1/client/subscribe?token=f0f23c94b869dc2507dfc3741998b96d"
 
   Unicorn:
     <<: *p
@@ -240,6 +265,8 @@ rule-providers:
 
 pr: &pr { type: select, proxies: [🕹️, 🇭🇰, 🇹🇼, 🇯🇵, 🇸🇬, 🇺🇸, 🌏, 👀, 🇨🇳] }
 
+proxies:
+
 proxy-groups:
   - name: 🕹️
     type: select
@@ -292,12 +319,29 @@ proxy-groups:
   - { name: 🈲🌐, type: select, proxies: [REJECT, DIRECT, 🕹️] }
 
 rules:
-  - RULE-SET,BAN,🈲🌐
+  - AND,((PROCESS-NAME,mihomo),(NOT,((IN-TYPE,inner)))),REJECT
+  - AND,((PROCESS-NAME,clash),(NOT,((IN-TYPE,inner)))),REJECT
+  - RULE-SET,BAN,REJECT
+
+  #进程分流
+  - PROCESS-NAME,com.zhiliaoapp.musically,🕹️
+  - PROCESS-NAME,com.ss.android.ugc.aweme,🇨🇳
+  - PROCESS-NAME,com.netease.cloudmusic,🇨🇳
+
+  #直连分流
   - RULE-SET,Download,🇨🇳
   - RULE-SET,PT,🇨🇳
   - RULE-SET,PASS,🇨🇳
+
+  #专用代理分流
+  - RULE-SET,PROXY,🕹️
   - RULE-SET,Dcard,DCARD
   - RULE-SET,Binance,FINANCIAL
+  - GEOSITE,ehentai,🕹️
+  - GEOSITE,twitter,🕹️
+  - GEOSITE,telegram,🕹️
+  - GEOSITE,pixiv,🕹️
+  - GEOSITE,spotify,SPOTIFY
 
   # AI CHAT
   - DOMAIN-SUFFIX,chatgpt.com,AI CHAT
@@ -320,31 +364,20 @@ rules:
   - RULE-SET,Bing,AI CHAT
   - RULE-SET,AICHAT-Patch,AI CHAT
 
-  #Spotify
-  - GEOSITE,spotify,SPOTIFY
-
   # Apple
   - GEOSITE,apple,APPLE
   - GEOSITE,apple-cn,APPLE
 
   # Google
   - GEOSITE,youtube,GOOGLE
+  - RULE-SET,Google,GOOGLE
   - GEOSITE,google,GOOGLE
-  - GEOSITE,google-cn,GOOGLE
+  #- GEOSITE,google-cn,GOOGLE
 
   # Microsoft
+  - GEOSITE,github,🕹️
   - GEOSITE,onedrive,MICROSOFT
   - GEOSITE,microsoft,MICROSOFT
-
-  - GEOSITE,ehentai,🕹️
-  - GEOSITE,github,🕹️
-  - GEOSITE,twitter,🕹️
-  - GEOSITE,telegram,🕹️
-  - GEOSITE,pixiv,🕹️
-  - RULE-SET,PROXY,🕹️
-  - GEOIP,google,GOOGLE
-  - GEOIP,telegram,🕹️
-  - GEOIP,twitter,🕹️
 
   # GAME
   - GEOSITE,steam@cn,DIRECT
@@ -359,12 +392,11 @@ rules:
   - GEOSITE,private,🇨🇳
   - GEOIP,CN,🇨🇳
 
-  - DOMAIN-SUFFIX,cn,DIRECT
+  - DOMAIN-SUFFIX,cn,🇨🇳
   - DOMAIN-KEYWORD,geosite,🕹️
   - IP-CIDR,10.0.0.0/8,DIRECT
   - IP-CIDR,172.16.0.0/12,DIRECT
   - IP-CIDR,192.168.0.0/16,DIRECT
-  - IP-CIDR,192.18.0.0/12,DIRECT
   - IP-CIDR,127.0.0.0/8,DIRECT
   - IP-CIDR,224.0.0.0/4,DIRECT
   - IP-CIDR,240.0.0.0/4,DIRECT
