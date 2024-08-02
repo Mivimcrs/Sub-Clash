@@ -1,6 +1,5 @@
 payload:
   - DOMAIN-SUFFIX,adobe.io
-  - DOMAIN-SUFFIX,adobe.io
   - DOMAIN-SUFFIX,*.adobe.io
   - DOMAIN-SUFFIX,photo-api.adobe.io
   - DOMAIN,ic.adobe.io
