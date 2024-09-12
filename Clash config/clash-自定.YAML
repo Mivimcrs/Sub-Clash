@@ -135,12 +135,12 @@ proxy-providers:
   Yushe:
     <<: *p
     path:
-    url: "https://sub.cucloud.top/api/v1/client/subscribe?token=f0f23c94b869dc2507dfc3741998b96d"
+    url: ""
 
   Unicorn:
     <<: *p
     path:
-    url: "https://mail1.9wan.win/api/v1/client/subscribe?token=bda5c5a5530649cfc227c64bd6cb2ed3"
+    url: ""
 
 rule-anchor:
   ip: &ip { type: http, interval: 600, behavior: ipcidr, format: yaml }
