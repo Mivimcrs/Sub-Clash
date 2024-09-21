@@ -135,12 +135,12 @@ proxy-providers:
   Yushe:
     <<: *p
     path:
-    url: "https://sub.cucloud.top/api/v1/client/subscribe?token=24112b48abb66ea27dd738cbf57a40d8"
+    url: "网址"
 
   Unicorn:
     <<: *p
     path:
-    url: "https://login.91unicorn.cc/api/v1/client/subscribe?token=83c6cd989884afb6897d3a89a91f548f"
+    url: "网址"
 
 rule-anchor:
   ip: &ip { type: http, interval: 600, behavior: ipcidr, format: yaml }
@@ -263,7 +263,7 @@ rule-providers:
     path: ./rulesets/anti-AD-white.yaml
     url: "https://raw.githubusercontent.com/privacy-protection-tools/dead-horse/master/anti-ad-white-for-clash.yaml"
 
-pr: &pr { type: select, proxies: [🕹️, 🇭🇰, 🇹🇼, 🇯🇵, 🇸🇬, 🇺🇸, 🌏, 👀, 🇨🇳] }
+pr: &pr { type: select, proxies: [🕹️, 🇭🇰, 🇹🇼, 🇯🇵, 🇸🇬, 🇺🇸, 👀, 🇨🇳] }
 
 proxies:
 
@@ -307,13 +307,6 @@ proxy-groups:
       <<: *use,
       filter: "(?i)美|us|unitedstates|united states",
     }
-  - {
-      name: 🌏,
-      type: select,
-      <<: *use,
-      filter: "(?i)^(?!.*(?:🇭🇰|🇯🇵|🇺🇸|🇸🇬|🇨🇳|港|hk|hongkong|台|tw|taiwan|日|jp|japan|新|sg|singapore|美|us|unitedstates)).*",
-    }
-
   - { name: 👀, type: select, <<: *use }
   - { name: 👆, <<: *pr }
   - { name: 🈲🌐, type: select, proxies: [REJECT, DIRECT, 🕹️] }
