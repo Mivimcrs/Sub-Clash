@@ -297,16 +297,32 @@ rules:
   - AND,((PROCESS-NAME,clash),(NOT,((IN-TYPE,inner)))),REJECT
   - RULE-SET,BAN,REJECT
 
+  #进程分流
   - PROCESS-NAME,com.zhiliaoapp.musically,🕹️
   - PROCESS-NAME,com.ss.android.ugc.aweme,🇨🇳
   - PROCESS-NAME,com.netease.cloudmusic,🇨🇳
-  - PROCESS-NAME,qbittorrent.exe,🇨🇳
-  
+  - PROCESS-NAME,dopus.exe,REJECT
+  - PROCESS-NAME,chrome.exe,🇨🇳
+  - PROCESS-NAME,BitComet_x64.exe,🇨🇳
+  - PROCESS-NAME,BitComet.exe,🇨🇳
+  - PROCESS-NAME,com.netease.cloudmusic,🇨🇳
+  - PROCESS-NAME,com.tvplayer.ybox,🕹️
+  - PROCESS-NAME,com.mb.android.tg,🕹️
+
+  #直连分流
   - RULE-SET,Download,🇨🇳
   - RULE-SET,PT,🇨🇳
   - RULE-SET,PASS,🇨🇳
+
+  #专用代理分流
+  - RULE-SET,PROXY,🕹️
   - RULE-SET,Dcard,DCARD
   - RULE-SET,Binance,FINANCIAL
+  - RULE-SET,Emby,EMBY
+  - GEOSITE,twitter,🕹️
+  - GEOSITE,telegram,TELEGRAM
+  - GEOSITE,pixiv,🕹️
+  - GEOSITE,spotify,SPOTIFY
 
   # AI CHAT
   - DOMAIN-SUFFIX,chatgpt.com,AI CHAT
@@ -329,33 +345,20 @@ rules:
   - RULE-SET,Bing,AI CHAT
   - RULE-SET,AICHAT-Patch,AI CHAT
 
-  #Spotify
-  - GEOSITE,spotify,SPOTIFY
-
   # Apple
   - GEOSITE,apple,APPLE
   - GEOSITE,apple-cn,APPLE
 
   # Google
-  - PROCESS-NAME-REGEX,(?i)google,GOOGLE
-  - PROCESS-NAME-REGEX,(?i)android,GOOGLE
   - GEOSITE,youtube,GOOGLE
+  - RULE-SET,Google,GOOGLE
   - GEOSITE,google,GOOGLE
-  - GEOSITE,google-cn,GOOGLE
+  #- GEOSITE,google-cn,GOOGLE
 
   # Microsoft
+  - GEOSITE,github,🕹️
   - GEOSITE,onedrive,MICROSOFT
   - GEOSITE,microsoft,MICROSOFT
-
-  - GEOSITE,ehentai,🕹️
-  - GEOSITE,github,🕹️
-  - GEOSITE,twitter,🕹️
-  - GEOSITE,telegram,🕹️
-  - GEOSITE,pixiv,🕹️
-  - RULE-SET,PROXY,🕹️
-  - GEOIP,google,GOOGLE
-  - GEOIP,telegram,TELEGRAM
-  - GEOIP,twitter,🕹️
 
   # GAME
   - GEOSITE,steam@cn,DIRECT
@@ -370,7 +373,7 @@ rules:
   - GEOSITE,private,🇨🇳
   - GEOIP,CN,🇨🇳
 
-  - DOMAIN-SUFFIX,cn,DIRECT
+  - DOMAIN-SUFFIX,cn,🇨🇳
   - DOMAIN-KEYWORD,geosite,🕹️
   - IP-CIDR,10.0.0.0/8,DIRECT
   - IP-CIDR,172.16.0.0/12,DIRECT
