@@ -112,12 +112,12 @@ use: &use
     - Unicorn
 
 proxy-providers:
-  Yushe:
+  **:
     <<: *p
     path:
     url: "https://"
 
-  Unicorn:
+  **:
     <<: *p
     path:
     url: "https://"
