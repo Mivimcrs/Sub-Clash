@@ -10,3 +10,4 @@ payload:
   - DOMAIN-SUFFIX,edf.eset.com
   - DOMAIN-SUFFIX,*.doubleclick.net
   - DOMAIN-SUFFIX,*.adobedtm.com
+  - PROCESS-NAME,dopus.exe
