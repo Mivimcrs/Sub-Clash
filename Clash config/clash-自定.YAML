@@ -150,6 +150,10 @@ rule-providers:
     <<: *classical
     path: ./rulesets/Emby.yaml
     url: "https://cdn.jsdelivr.net/gh/blackmatrix7/ios_rule_script@master/rule/Clash/Emby/Emby.yaml"
+  Emby-Patch:
+    <<: *classical
+    path: ./rulesets/Emby.yaml
+    url: "https://raw.githubusercontent.com/Mivimcrs/Sub-Clash/refs/heads/main/Clash%20config/rulesets/Emby-Patch.yaml"
   YouTube:
     <<: *classical
     path: ./rulesets/YouTube.yaml
@@ -382,3 +386,4 @@ rules:
   - IP-CIDR,224.0.0.0/4,DIRECT
   - IP-CIDR,240.0.0.0/4,DIRECT
   - MATCH,👆
+
