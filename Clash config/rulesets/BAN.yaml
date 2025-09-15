@@ -11,3 +11,4 @@ payload:
   - DOMAIN-SUFFIX,*.doubleclick.net
   - DOMAIN-SUFFIX,*.adobedtm.com
   - PROCESS-NAME,dopus.exe
+  - PROCESS-NAME,Resolve.exe
